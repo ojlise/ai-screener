@@ -124,7 +124,7 @@ footer{font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:6
   <div class="eyebrow">Updated 24 Oct 2026 · 100 names</div>
   <h1>AI Transition Screener</h1>
   <p class="lede">100 companies positioned for the AI build-out and its second-order winners, skewed toward small and mid caps. Start with the five front-page picks, then filter the full universe and watch every chart re-cut.</p>
-  <div class="notice"><b>Read this first.</b> 16 names are tagged “refreshed”: their market cap, forward P/E, growth and margin were updated on 24 Oct 2026 from Yahoo Finance and StockAnalysis pages (each carries its data date; a few pages were cached from earlier weeks). The other 84 are rounded estimates from early Oct 2026 and may be stale. These are web-page figures, not a live feed. AI exposure and risk are my own 1–5 judgments. Verify every number with a live source before acting. This is not financial advice.</div>
+  <div class="notice"><b>Read this first.</b> 21 names are tagged “refreshed”: their market cap, forward P/E, growth and margin were updated on 24 Oct 2026 from Yahoo Finance and StockAnalysis pages (each carries its data date; a few pages were cached from earlier weeks). The other 79 are rounded estimates from early Oct 2026 and may be stale. These are web-page figures, not a live feed. AI exposure and risk are my own 1–5 judgments. Verify every number with a live source before acting. This is not financial advice.</div>
 </header>
 
 <section>
@@ -200,9 +200,7 @@ const D=[
 ['GNRC','Generac','power',10,20,8,15,3,3,0,'Backup generation, new data-center line'],
 ['FLNC','Fluence Energy','power',3,35,20,2,3,4,0,'Grid-scale batteries'],
 ['VICR','Vicor','power',3,40,12,18,4,4,0,'High-density power modules for AI accelerators'],
-['ATKR','Atkore','power',2.5,14,-5,12,2,3,0,'Electrical raceway; cheap but cyclical'],
 ['AMSC','American Superconductor','power',2,40,25,8,3,4,0,'Grid power electronics'],
-['SMR','NuScale Power','power',5,null,0,null,3,5,0,'Small modular reactors, pre-scale'],
 ['CEG','Constellation Energy','power',100,28,10,20,3,2,0,'Largest US nuclear fleet (large-cap reference)'],
 ['VST','Vistra','power',55,20,12,25,4,3,0,'Merchant power benefiting from load growth'],
 ['ETN','Eaton','power',140,28,8,20,4,2,0,'Electrical gear (large-cap reference)'],
@@ -218,7 +216,6 @@ const D=[
 ['MTZ','MasTec','build',15,25,15,6,3,3,0,'Power, comms and pipeline construction'],
 ['AGX','Argan','build',4,24,20,14,4,3,0,'Power plant construction'],
 ['WLDN','Willdan Group','build',1.2,25,20,6,3,4,0,'Energy engineering and grid consulting'],
-['FLR','Fluor','build',8,18,0,3,2,4,0,'Large-project engineering, turnaround story'],
 ['CRWV','CoreWeave','compute',50,null,100,20,5,5,0,'GPU cloud, heavy debt and customer concentration'],
 ['NBIS','Nebius Group','compute',25,null,250,null,5,5,0,'GPU cloud and AI infrastructure'],
 ['APLD','Applied Digital','compute',8,null,100,10,5,5,0,'AI data-center hosting'],
@@ -280,13 +277,16 @@ const D=[
 ['PGY','Pagaya Technologies','apps',3.9,18.8,52,12,4,4,1,'AI credit decisioning network','Sep 18, 2026'],
 ['SEZL','Sezzle','apps',1.9,5.4,50,25,3,4,1,'Buy-now-pay-later with algorithmic underwriting','Sep 4, 2026'],
 ['DUOL','Duolingo','apps',6.8,19,18,12,4,3,1,'AI-powered language learning','Oct 9, 2026'],
-['SDGR','Schrödinger','apps',1.5,null,5,null,3,4,1,'Physics-plus-AI drug discovery software'],
 ['UPST','Upstart','apps',5,25,30,8,4,5,0,'AI lending platform, rate-sensitive'],
 ['TEM','Tempus AI','apps',11,null,80,null,5,4,0,'AI-driven precision medicine'],
-['RXRX','Recursion Pharmaceuticals','apps',2,null,10,null,4,5,0,'AI drug discovery, pre-revenue'],
 ['DOCS','Doximity','apps',9,28,12,35,3,3,0,'Physician network with AI tools'],
 ['PEGA','Pegasystems','apps',9,25,12,15,3,3,0,'Enterprise workflow and agentic AI'],
 ['TWLO','Twilio','apps',18,22,10,12,3,3,0,'Communications platform for AI agents'],
+['AVGO','Broadcom','semis',1540,18.5,40,49,5,3,0,'Custom AI chips and AI networking; named in several Fool picks','Oct 23, 2026'],
+['AMD','Advanced Micro Devices','semis',1000,39.5,35,15,5,3,0,'Data-center GPUs and CPUs for AI inference; named in several Fool picks','Oct 2026'],
+['ASML','ASML Holding','semis',666,28.9,55,44.4,4,3,0,'Sole EUV lithography supplier (large-cap reference)','Oct 22, 2026'],
+['SANM','Sanmina','net',8.35,12.3,25,5.5,4,3,0,'Builds data-center and networking hardware for cloud customers','Oct 23, 2026'],
+['ENS','EnerSys','power',6.1,12.9,10,13.4,3,3,0,'Backup batteries and power systems for data centers','Oct 16, 2026'],
 ['ZETA','Zeta Global','apps',4,14,30,5,3,4,0,'AI marketing cloud']
 ];
 const BG={
@@ -302,9 +302,7 @@ OKLO:"Developing small advanced fission power plants aimed at data centers and i
 GNRC:"Largest US maker of residential standby generators, expanding into commercial and data-center backup power.",
 FLNC:"Supplies grid-scale battery storage systems and software. Data-center and renewable build-outs both need storage, but margins are thin.",
 VICR:"Designs compact high-density power modules, including those that deliver current to AI accelerators. Technology-led, with lumpy customer orders.",
-ATKR:"Makes electrical conduit, cable and raceway for construction. Data-center activity helps, but pricing and housing cycles dominate results.",
 AMSC:"Provides grid power electronics, ship protection systems and wind-turbine electronics. Grid reliability spending is a tailwind; the company is small.",
-SMR:"Designs small modular nuclear reactors with a licensed design. Revenue is minimal until plants are built; highly speculative.",
 CEG:"Owns the largest fleet of US nuclear plants and sells carbon-free power under long-term deals, including to tech companies. Large-cap reference name.",
 VST:"Texas-based generator with gas, nuclear and retail power operations. Rising data-center load supports power prices and long-term contracts.",
 ETN:"Global electrical equipment maker with big data-center and utility businesses. Large-cap reference for the power build-out.",
@@ -320,7 +318,6 @@ PWR:"Largest US specialty contractor for electric transmission and utility infra
 MTZ:"Infrastructure contractor for power delivery, communications, pipelines and clean energy. Data-center related work is a growing slice.",
 AGX:"Builds gas-fired power plants through its Gemma subsidiary and does industrial field services. New power-demand forecasts have lifted its backlog.",
 WLDN:"Consulting and engineering firm focused on energy efficiency, grid planning and infrastructure. Small and sensitive to project timing.",
-FLR:"Global engineering and construction company working through a turnaround after past project losses. AI-related exposure is indirect.",
 CRWV:"Specialized GPU cloud renting NVIDIA capacity to AI labs and large tech firms. Growth is rapid but funded with heavy debt and concentrated in a few customers.",
 NBIS:"AI infrastructure company that spun out of Yandex's international assets and rents GPU capacity and AI cloud services. Early-stage and capital-hungry.",
 APLD:"Builds and operates data-center campuses designed for AI workloads and leases them to cloud customers. Dependent on a small number of tenants.",
@@ -382,13 +379,16 @@ DT:"Observability and security platform that uses AI to find and fix problems in
 PGY:"Uses AI to underwrite loans for banks and credit unions through a lending network. Results depend on credit performance and funding markets.",
 SEZL:"Buy-now-pay-later provider for smaller merchants and consumers with algorithmic underwriting. Fast growth with credit risk.",
 DUOL:"Language-learning app using AI to personalize lessons and add conversational practice. Large and growing user base.",
-SDGR:"Software company combining physics-based modeling and machine learning for drug discovery, plus its own pipeline.",
 UPST:"AI-based lending marketplace connecting borrowers with lenders. Results are very sensitive to interest rates and funding.",
 TEM:"Genomic testing and data company applying AI to clinical decisions and drug development.",
-RXRX:"Biotech using automated lab experiments and machine learning to find drug candidates. Pre-revenue pipeline risk.",
 DOCS:"Online network of US physicians that sells marketing and workflow tools, with AI note-taking and search features.",
 PEGA:"Enterprise software for workflow automation and customer decisioning, adding generative-AI design tools.",
 TWLO:"Communications platform used to embed messaging and voice into apps, including AI agents and chatbots.",
+AVGO:"Designs custom AI accelerators (ASICs) for large cloud customers and the Ethernet and interconnect chips that link AI clusters, plus infrastructure software. Named in several recent Motley Fool AI-infrastructure articles. Mega-cap.",
+AMD:"Sells data-center GPUs and server CPUs and is pushing into AI inference, competing with NVIDIA and Intel. Named in several recent Motley Fool AI-infrastructure articles. Mega-cap.",
+ASML:"Dutch maker of the extreme-ultraviolet lithography machines needed for leading-edge chips; no other supplier. Orders follow chipmakers' AI-driven capacity plans. Large-cap reference name.",
+SANM:"Electronics manufacturing services provider that builds complex systems, including data-center and cloud infrastructure hardware and networking gear. Thin margins, fast recent growth and a low multiple.",
+ENS:"Makes industrial batteries and energy systems, including backup power for data centers. Data-center growth supports demand; battery material costs swing margins.",
 ZETA:"Marketing technology company using AI and consumer data to personalise and target campaigns."
 };
 const TRISK={power:"Equipment orders can slow if data-center spending pauses; commodity and supply-chain costs swing margins.",build:"Project timing and cost overruns hit small-margin contractors; heavy dependence on a few big customers.",compute:"Capital-intensive, debt-funded and tied to a few tenants; a pullback in AI capex would hit these names hardest.",semis:"Semiconductor cycles are sharp; export controls and customer concentration can move results quickly.",net:"Customer concentration among a few hyperscalers; competition and product-cycle swings are common.",soft:"Multiples assume sustained growth; AI features may be commoditised or priced into the stock.",apps:"Business models are less proven; credit, funding or clinical outcomes can dominate the AI story."};
