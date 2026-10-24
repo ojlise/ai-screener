@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>AI Transition Screener</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* TOKEN PLAN
+   surfaces: --bg paper-warm, --panel, --line; ink: --ink/--ink2/--ink3
+   accent --acc (deep ink-teal) for UI only; theme colours --c1..--c7 = validated categorical slots 1-7 in fixed order
+   type: Fraunces (display) / IBM Plex Sans (UI) / IBM Plex Mono (figures) */
+:root{
+  --bg:#f6f4ef;--panel:#fffefb;--panel2:#f0ede6;--line:#e1ddd2;--grid:#e9e5da;
+  --ink:#16181a;--ink2:#51544f;--ink3:#7d7f76;--acc:#0f5c5c;--acc-ink:#ffffff;
+  --good:#1b7a46;--bad:#b3392f;
+  --c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--c4:#eda100;--c5:#e87ba4;--c6:#008300;--c7:#4a3aa7;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--sans:'IBM Plex Sans',system-ui,sans-serif;--serif:'Fraunces',Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121413;--panel:#1a1c1b;--panel2:#222523;--line:#2f3331;--grid:#2a2d2b;
+  --ink:#f1f0ea;--ink2:#b9bab0;--ink3:#8b8d84;--acc:#5fc4bd;--acc-ink:#0b1514;--good:#4ccf8a;--bad:#ef7d72;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#008300;--c7:#9085e9;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121413;--panel:#1a1c1b;--panel2:#222523;--line:#2f3331;--grid:#2a2d2b;
+  --ink:#f1f0ea;--ink2:#b9bab0;--ink3:#8b8d84;--acc:#5fc4bd;--acc-ink:#0b1514;--good:#4ccf8a;--bad:#ef7d72;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#008300;--c7:#9085e9;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--serif);font-weight:700;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.08}
+h2{font-size:22px}
+h3{font-size:17px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.lede{color:var(--ink2);max-width:68ch;margin:8px 0 0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+header{display:flex;flex-direction:column;gap:6px}
+.notice{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--ink2)}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.sec-head p{margin:0;color:var(--ink2);font-size:13px}
+/* top 5 */
+.top5{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .rk{font-family:var(--serif);font-size:30px;line-height:1;color:var(--ink3)}
+.card-top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between}
+.tkr{font-family:var(--mono);font-weight:500;font-size:20px}
+.cname{color:var(--ink2);font-size:13px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.thesis{margin:0;font-size:13.5px}
+.bars{display:flex;flex-direction:column;gap:7px}
+.brow{display:grid;grid-template-columns:96px 1fr 52px;gap:8px;align-items:center;font-size:12px;color:var(--ink2)}
+.btrack{position:relative;height:8px;background:var(--panel2);border-radius:4px}
+.bfill{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0}
+.bmed{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.55}
+.bval{text-align:right;color:var(--ink)}
+.legend-note{font-size:11.5px;color:var(--ink3)}
+.watch{font-size:12.5px;color:var(--ink2);border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+.watch b{color:var(--ink)}
+/* screener */
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:5px 11px;font:inherit;font-size:12.5px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.chip[aria-pressed="false"]{opacity:.45}
+.chip:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:14px 22px}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ctl label,.lbl{font-size:12px;color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
+.ctl label span{font-family:var(--mono);color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=search]{width:100%;padding:8px 10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;font:inherit}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--ink2)}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+details summary{cursor:pointer;font-size:12.5px;color:var(--ink2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel)}
+.kpi .v{font-family:var(--mono);font-size:22px;font-variant-numeric:tabular-nums}
+.kpi .k{font-size:11.5px;color:var(--ink3)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.chart{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.chart h3{font-size:15px;margin-bottom:2px}
+.chart p{margin:0 0 8px;font-size:12px;color:var(--ink3)}
+.cv{position:relative;height:300px}
+.empty{padding:30px;text-align:center;color:var(--ink3)}
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:860px;font-size:13px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+th:nth-child(-n+3),td:nth-child(-n+3){text-align:left}
+th{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);cursor:pointer;white-space:nowrap;background:var(--panel2);position:sticky;top:0}
+th[aria-sort]{color:var(--ink)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td .nt{font-size:11.5px;color:var(--ink3);max-width:34ch;white-space:normal}
+.sc{display:inline-block;height:6px;border-radius:3px;background:var(--acc);vertical-align:middle;margin-right:6px}
+.est{font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--ink3)}
+.est.r{color:var(--good);border-color:var(--good)}
+tbody tr[data-t]{cursor:pointer}
+tbody tr[data-t]:hover{background:var(--panel2)}
+tbody tr[data-t]:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.ov[hidden]{display:none}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(10,12,12,.55);overflow-y:auto;display:flex;justify-content:center;align-items:flex-start;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.panel{position:relative;width:100%;max-width:720px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;line-height:1;cursor:pointer}
+.dh{padding-right:40px}
+.dh .tkr{font-size:26px}
+.dsec h4{margin:0 0 8px;font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:500}
+.dsec p{margin:0;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.stat .v{font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums}
+.stat .k{font-size:11px;color:var(--ink3)}
+.brow.wide{grid-template-columns:150px 1fr 44px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.links a{border:1px solid var(--acc);color:var(--acc);border-radius:8px;padding:6px 12px;text-decoration:none;font-size:13px}
+.links a:hover{background:var(--panel2)}
+.pbox{border:1px dashed var(--line);border-radius:8px;padding:12px;background:var(--panel2);font-size:13px;color:var(--ink2)}
+.peers{display:flex;flex-wrap:wrap;gap:8px}
+footer{font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:6px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Screener · as of 3 Oct 2026 · 100 names</div>
+  <h1>AI Transition Screener</h1>
+  <p class="lede">100 companies positioned for the AI build-out and its second-order winners, skewed toward small and mid caps. Start with the five front-page picks, then filter the full universe and watch every chart re-cut.</p>
+  <div class="notice"><b>Read this first.</b> Figures are rounded, approximate screening estimates compiled from research up to early Oct 2026, not live quotes. “Researched” names got a closer look in this conversation; the rest are screen-only. AI exposure and risk are my own 1–5 judgments. Verify every number with a live source before acting. This is not financial advice.</div>
+</header>
+
+<section>
+  <div class="sec-head"><div><div class="eyebrow">Front page</div><h2>Five picks to start with</h2></div>
+  <p>Bars compare each company with the universe median (tick). Lower forward P/E is better.</p></div>
+  <div id="top5" class="top5"></div>
+</section>
+
+<section>
+  <div class="sec-head"><div><div class="eyebrow">Screener</div><h2>Filter the universe</h2></div></div>
+  <div class="controls">
+    <div><div class="lbl" style="margin-bottom:6px">Theme (also the chart legend)</div><div class="chips" id="themeChips"></div></div>
+    <div><div class="lbl" style="margin-bottom:6px">Market cap</div><div class="chips" id="capChips"></div></div>
+    <div class="sliders">
+      <div class="ctl"><label for="fPE">Max forward P/E <span id="vPE"></span></label><input id="fPE" type="range" min="10" max="100" step="5" value="100"></div>
+      <div class="ctl"><label for="fG">Min revenue growth <span id="vG"></span></label><input id="fG" type="range" min="-10" max="60" step="5" value="-10"></div>
+      <div class="ctl"><label for="fM">Min operating margin <span id="vM"></span></label><input id="fM" type="range" min="0" max="40" step="5" value="0"></div>
+      <div class="ctl"><label for="fAI">Min AI exposure (1–5) <span id="vAI"></span></label><input id="fAI" type="range" min="1" max="5" step="1" value="1"></div>
+      <div class="ctl"><label for="fR">Max risk (1–5) <span id="vR"></span></label><input id="fR" type="range" min="1" max="5" step="1" value="5"></div>
+      <div class="ctl"><label for="fQ">Search</label><input id="fQ" type="search" placeholder="Ticker or name"></div>
+    </div>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="fNM" checked> Include names with no meaningful P/E (unprofitable)</label>
+      <label class="check"><input type="checkbox" id="fRes"> Researched names only</label>
+      <button class="btn" id="reset">Reset filters</button>
+    </div>
+    <details><summary>Score weights (how the composite “Screen score” is built)</summary>
+      <div class="sliders" style="margin-top:10px" id="wBox"></div>
+    </details>
+  </div>
+</section>
+
+<section>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<section>
+  <div class="charts">
+    <div class="chart"><h3>Growth vs. valuation</h3><p>Each dot is a company (click one for details). Up and left is faster growth for a lower multiple.</p><div class="cv"><canvas id="c1" role="img" aria-label="Scatter of revenue growth against forward P/E, coloured by theme"></canvas></div><div class="legend-note" id="n1"></div></div>
+    <div class="chart"><h3>Top 10 by screen score</h3><p>Re-ranks as you filter or change weights. Click a bar for details.</p><div class="cv"><canvas id="c2" role="img" aria-label="Bar chart of top ten companies by screen score"></canvas></div></div>
+    <div class="chart"><h3>Average score by theme</h3><p>Company count in brackets.</p><div class="cv"><canvas id="c3" role="img" aria-label="Average screen score by theme"></canvas></div></div>
+    <div class="chart"><h3>Revenue-growth distribution</h3><p>How many filtered names fall in each growth band.</p><div class="cv"><canvas id="c4" role="img" aria-label="Histogram of revenue growth"></canvas></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><div><div class="eyebrow">Table view</div><h2 id="tcount">Results</h2></div><p>Click a column to sort, or a row for background and charts.</p></div>
+  <div class="tscroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<footer>
+  <div><b>Method.</b> Screen score (0–100) blends growth, valuation (growth-adjusted, lower P/E scores higher), operating margin, AI exposure, safety (inverse of risk) and a small-cap tilt, using the weights above. Names with no meaningful P/E receive a modest neutral valuation score.</div>
+  <div><b>Caveats.</b> Small caps are volatile and often depend on a handful of hyperscaler customers; capex cycles can reverse. Several names (neoclouds, crypto-miner conversions, early-stage AI) are speculative. Index membership of large caps is included only as reference.</div>
+</footer>
+</div>
+
+<div id="ov" class="ov" hidden><div class="panel" role="dialog" aria-modal="true" aria-labelledby="dT"><button class="x" id="dx" aria-label="Close details">×</button><div id="dBody" style="display:flex;flex-direction:column;gap:18px"></div></div></div>
+<script>
+/* name, theme, capB, fwdPE, revG%, opM%, AI(1-5), risk(1-5), researched, note */
+const TH=[
+ {id:'power',name:'Power & Cooling'},{id:'build',name:'Build & Electrical'},{id:'compute',name:'Compute, Storage & Hosting'},
+ {id:'semis',name:'Semis & Equipment'},{id:'net',name:'Networking & Optics'},{id:'soft',name:'Software & Data'},{id:'apps',name:'AI Apps, Fintech & Bio'}];
+const D=[
+['VRT','Vertiv','power',55,38,25,20,5,3,0,'Rack power and liquid cooling for data centers'],
+['MOD','Modine','power',8,24,15,11,4,3,1,'Pivot from auto parts to data-center thermal management'],
+['POWL','Powell Industries','power',4,22,10,17,4,3,1,'Switchgear and power control; lumpy but large backlog'],
+['BE','Bloom Energy','power',25,null,60,5,5,5,0,'On-site fuel-cell power for data centers'],
+['NVT','nVent Electric','power',15,25,20,17,4,2,0,'Enclosures, liquid cooling and power distribution'],
+['HUBB','Hubbell','power',23,24,8,20,3,2,0,'Grid and electrical components'],
+['AAON','AAON','power',9,38,10,18,4,3,0,'Data-center HVAC units, premium multiple'],
+['TLN','Talen Energy','power',15,22,10,35,4,4,0,'Nuclear/gas power sold to AI loads'],
+['OKLO','Oklo','power',12,null,0,null,3,5,0,'Pre-revenue advanced nuclear'],
+['GNRC','Generac','power',10,20,8,15,3,3,0,'Backup generation, new data-center line'],
+['FLNC','Fluence Energy','power',3,35,20,2,3,4,0,'Grid-scale batteries'],
+['VICR','Vicor','power',3,40,12,18,4,4,0,'High-density power modules for AI accelerators'],
+['ATKR','Atkore','power',2.5,14,-5,12,2,3,0,'Electrical raceway; cheap but cyclical'],
+['AMSC','American Superconductor','power',2,40,25,8,3,4,0,'Grid power electronics'],
+['SMR','NuScale Power','power',5,null,0,null,3,5,0,'Small modular reactors, pre-scale'],
+['CEG','Constellation Energy','power',100,28,10,20,3,2,0,'Largest US nuclear fleet (large-cap reference)'],
+['VST','Vistra','power',55,20,12,25,4,3,0,'Merchant power benefiting from load growth'],
+['ETN','Eaton','power',140,28,8,20,4,2,0,'Electrical gear (large-cap reference)'],
+['GEV','GE Vernova','power',170,40,12,12,4,3,0,'Turbines and grid equipment (large-cap reference)'],
+['MYRG','MYR Group','build',3,20,10,6,4,3,1,'Electrical T&D and data-center power construction'],
+['IESC','IES Holdings','build',6,22,15,12,4,3,1,'Electrical contractor with data-center backlog'],
+['STRL','Sterling Infrastructure','build',9,25,15,13,4,3,1,'Site development and e-infrastructure'],
+['PRIM','Primoris Services','build',6,20,10,6,3,3,0,'Utility and power construction'],
+['EME','EMCOR Group','build',25,24,12,9,4,2,0,'Mechanical/electrical contractor, data-center heavy'],
+['FIX','Comfort Systems USA','build',28,32,20,11,5,3,0,'Mechanical contractor with data-center mix'],
+['DY','Dycom Industries','build',8,24,12,8,4,3,0,'Fiber and network construction'],
+['PWR','Quanta Services','build',65,33,15,7,4,2,0,'Grid build-out leader (large-cap reference)'],
+['MTZ','MasTec','build',15,25,15,6,3,3,0,'Power, comms and pipeline construction'],
+['AGX','Argan','build',4,24,20,14,4,3,0,'Power plant construction'],
+['WLDN','Willdan Group','build',1.2,25,20,6,3,4,0,'Energy engineering and grid consulting'],
+['FLR','Fluor','build',8,18,0,3,2,4,0,'Large-project engineering, turnaround story'],
+['CRWV','CoreWeave','compute',50,null,100,20,5,5,0,'GPU cloud, heavy debt and customer concentration'],
+['NBIS','Nebius Group','compute',25,null,250,null,5,5,0,'GPU cloud and AI infrastructure'],
+['APLD','Applied Digital','compute',8,null,100,10,5,5,0,'AI data-center hosting'],
+['IREN','IREN','compute',10,null,150,10,5,5,0,'Bitcoin miner converting to AI cloud'],
+['CORZ','Core Scientific','compute',5,null,40,5,4,5,0,'Miner/host with GPU colocation contracts'],
+['CIFR','Cipher Mining','compute',4,null,80,5,4,5,0,'Miner pivoting to AI/HPC hosting'],
+['WULF','TeraWulf','compute',3,null,80,5,4,5,0,'Miner pivoting to HPC hosting'],
+['EQIX','Equinix','compute',80,35,7,18,3,2,0,'Interconnection and colocation REIT'],
+['DLR','Digital Realty','compute',55,40,10,20,3,2,0,'Data-center REIT'],
+['SMCI','Super Micro Computer','compute',20,15,30,5,4,4,0,'AI servers, thin margins, governance history'],
+['PSTG','Pure Storage','compute',20,38,15,10,4,3,0,'Flash storage for AI data pipelines'],
+['STX','Seagate','compute',30,15,25,25,4,3,0,'High-capacity drives for AI data lakes'],
+['WDC','Western Digital','compute',30,14,15,24,4,3,0,'Hard drives, cheap on earnings'],
+['AEIS','Advanced Energy','semis',7,20,15,15,4,3,1,'Precision power for chip tools and data centers'],
+['CAMT','Camtek','semis',4,28,20,28,4,3,0,'Inspection for advanced packaging'],
+['ONTO','Onto Innovation','semis',5,25,10,25,4,3,0,'Process control for advanced packaging'],
+['FORM','FormFactor','semis',3,30,15,15,4,3,0,'Probe cards for HBM and AI chips'],
+['ICHR','Ichor Holdings','semis',1,25,10,3,3,4,0,'Fluid subsystems for chip equipment'],
+['UCTT','Ultra Clean Holdings','semis',1.5,15,10,8,3,3,0,'Gas/fluid subsystems for chip equipment'],
+['AMKR','Amkor Technology','semis',7,14,10,8,3,3,0,'Advanced packaging services'],
+['LSCC','Lattice Semiconductor','semis',10,40,20,25,3,3,0,'Low-power FPGAs, AI edge and servers'],
+['MPWR','Monolithic Power','semis',40,38,20,26,4,2,0,'Power chips for AI servers'],
+['RMBS','Rambus','semis',8,28,15,38,4,3,0,'Memory interface chips'],
+['SITM','SiTime','semis',6,60,80,5,3,4,0,'Precision timing chips for AI systems'],
+['AMBQ','Ambiq Micro','semis',2,null,30,null,3,5,1,'Ultra-low-power chips for edge AI'],
+['POWI','Power Integrations','semis',3,30,10,6,3,3,0,'High-voltage power conversion'],
+['NVMI','Nova Ltd','semis',7,20,12,30,4,3,0,'Metrology for advanced nodes'],
+['TSEM','Tower Semiconductor','semis',5,30,10,12,3,3,0,'Specialty foundry, silicon photonics'],
+['TSM','TSMC','semis',1000,20,30,45,5,2,1,'World’s leading foundry (mega-cap reference)'],
+['NVDA','NVIDIA','semis',4500,28,50,60,5,2,1,'AI accelerators (mega-cap reference)'],
+['MU','Micron Technology','semis',250,10,40,35,4,3,0,'HBM memory; cyclical'],
+['CRDO','Credo Technology','net',25,40,90,30,5,4,1,'Active electrical cables and SerDes for AI clusters'],
+['ALAB','Astera Labs','net',25,55,100,30,5,4,0,'Connectivity silicon for AI servers'],
+['COHR','Coherent','net',20,30,15,10,5,3,0,'Optical transceivers and lasers'],
+['LITE','Lumentum','net',20,40,40,12,5,4,0,'Lasers for AI optical links'],
+['CIEN','Ciena','net',20,35,20,10,4,3,0,'Optical networking for data-center interconnect'],
+['FN','Fabrinet','net',15,30,15,10,4,3,0,'Optical manufacturing partner'],
+['CLS','Celestica','net',35,35,60,9,4,4,1,'AI server and switch manufacturing'],
+['AAOI','Applied Optoelectronics','net',3,null,50,5,5,5,0,'Optical transceivers, volatile'],
+['MTSI','MACOM','net',15,32,20,28,4,3,0,'Analog and optical semis'],
+['BELFA','Bel Fuse','net',3,18,20,15,3,3,1,'Power and connectivity components'],
+['CSCO','Cisco Systems','net',260,17,8,25,3,2,1,'Networking incumbent (large-cap reference)'],
+['ANET','Arista Networks','net',160,38,25,42,5,3,0,'AI-cluster Ethernet switching'],
+['DDOG','Datadog','soft',45,55,25,22,4,3,1,'Observability for AI workloads'],
+['SNOW','Snowflake','soft',75,null,28,8,4,3,0,'Data platform adding AI features'],
+['MDB','MongoDB','soft',25,45,20,15,3,3,0,'Developer database platform'],
+['NET','Cloudflare','soft',70,null,28,0,4,3,0,'Edge network and AI inference'],
+['PLTR','Palantir','soft',400,180,45,40,5,5,0,'AI platform, extreme valuation'],
+['ESTC','Elastic','soft',8,22,15,15,3,3,0,'Search and vector data'],
+['DOCN','DigitalOcean','soft',4,18,15,18,3,3,0,'Cloud for smaller AI developers'],
+['GTLB','GitLab','soft',7,40,25,15,3,3,0,'DevOps with AI coding features'],
+['PATH','UiPath','soft',7,20,8,15,3,3,0,'Automation moving to agentic AI'],
+['SOUN','SoundHound AI','soft',4,null,100,null,3,5,0,'Voice AI, small and unprofitable'],
+['INTU','Intuit','soft',190,28,12,28,3,2,1,'Financial software with AI assistants'],
+['MSFT','Microsoft','soft',3800,30,16,46,5,1,1,'Azure and Copilot (mega-cap reference)'],
+['GOOGL','Alphabet','soft',3500,22,14,32,5,2,1,'Gemini, TPUs and cloud (mega-cap reference)'],
+['APP','AppLovin','soft',150,35,40,75,4,4,0,'AI-driven ad optimisation'],
+['DT','Dynatrace','soft',14,28,17,22,3,3,0,'AI-driven observability'],
+['PGY','Pagaya Technologies','apps',2.5,8,25,12,4,4,1,'AI credit decisioning network'],
+['SEZL','Sezzle','apps',3,15,50,25,3,4,1,'Buy-now-pay-later with algorithmic underwriting'],
+['DUOL','Duolingo','apps',10,28,30,25,4,3,1,'AI-powered language learning'],
+['SDGR','Schrödinger','apps',1.5,null,5,null,3,4,1,'Physics-plus-AI drug discovery software'],
+['UPST','Upstart','apps',5,25,30,8,4,5,0,'AI lending platform, rate-sensitive'],
+['TEM','Tempus AI','apps',11,null,80,null,5,4,0,'AI-driven precision medicine'],
+['RXRX','Recursion Pharmaceuticals','apps',2,null,10,null,4,5,0,'AI drug discovery, pre-revenue'],
+['DOCS','Doximity','apps',9,28,12,35,3,3,0,'Physician network with AI tools'],
+['PEGA','Pegasystems','apps',9,25,12,15,3,3,0,'Enterprise workflow and agentic AI'],
+['TWLO','Twilio','apps',18,22,10,12,3,3,0,'Communications platform for AI agents'],
+['ZETA','Zeta Global','apps',4,14,30,5,3,4,0,'AI marketing cloud']
+];
+const BG={
+VRT:"Makes the power systems, thermal management and liquid cooling that keep data-center racks running. AI racks draw far more power and heat, which drives demand for its gear and services.",
+MOD:"Century-old Wisconsin thermal company that has shifted away from automotive toward heat-transfer and cooling for data centers, HVAC and commercial vehicles. Data-center chillers and coolers are its main growth line.",
+POWL:"Houston maker of custom electrical switchgear, bus systems and power-control rooms for utilities, industrial plants and data centers. Revenue follows a multi-quarter project backlog.",
+BE:"Builds solid-oxide fuel cells that generate on-site electricity. AI data centers waiting on grid connections are a new buyer base for its systems.",
+NVT:"Supplies enclosures, power distribution and liquid-cooling hardware for data centers, plus electrical connection products for utilities and industry.",
+HUBB:"Maker of electrical and utility components such as connectors, grid hardware and wiring devices. Grid upgrades and data-center build-outs support demand.",
+AAON:"Oklahoma-based maker of rooftop and precision cooling units for commercial buildings, now selling heavily into data centers. Trades at a premium to HVAC peers.",
+TLN:"Independent power producer owning nuclear and gas plants in the eastern US. It has contracted power to data-center customers, including from its Susquehanna nuclear site.",
+OKLO:"Developing small advanced fission power plants aimed at data centers and industrial customers. Pre-revenue; the story depends on licensing and first-plant execution.",
+GNRC:"Largest US maker of residential standby generators, expanding into commercial and data-center backup power.",
+FLNC:"Supplies grid-scale battery storage systems and software. Data-center and renewable build-outs both need storage, but margins are thin.",
+VICR:"Designs compact high-density power modules, including those that deliver current to AI accelerators. Technology-led, with lumpy customer orders.",
+ATKR:"Makes electrical conduit, cable and raceway for construction. Data-center activity helps, but pricing and housing cycles dominate results.",
+AMSC:"Provides grid power electronics, ship protection systems and wind-turbine electronics. Grid reliability spending is a tailwind; the company is small.",
+SMR:"Designs small modular nuclear reactors with a licensed design. Revenue is minimal until plants are built; highly speculative.",
+CEG:"Owns the largest fleet of US nuclear plants and sells carbon-free power under long-term deals, including to tech companies. Large-cap reference name.",
+VST:"Texas-based generator with gas, nuclear and retail power operations. Rising data-center load supports power prices and long-term contracts.",
+ETN:"Global electrical equipment maker with big data-center and utility businesses. Large-cap reference for the power build-out.",
+GEV:"Spun out of GE; makes gas turbines, grid equipment and wind systems. Turbine backlog is the bottleneck for new data-center power. Large-cap reference.",
+MYRG:"Builds electrical transmission, distribution and commercial/industrial projects across the US and Canada, including data-center power work. Margins are modest, so cost control matters.",
+IESC:"Houston-based electrical and technology contractor with segments in communications (data centers), commercial/industrial and residential. Backlog growth and margin gains drive the story.",
+STRL:"Does site development, e-infrastructure and building work, including large data-center and semiconductor sites. Has moved toward higher-margin work.",
+PRIM:"Utility, power-delivery and pipeline construction company. Benefits from grid and power-generation build-outs.",
+EME:"Large mechanical and electrical contractor with a growing data-center and healthcare client base. Steady, well-run, less volatile than small peers.",
+FIX:"Mechanical, electrical and plumbing contractor with a large and growing data-center mix. Strong execution, but the multiple already reflects it.",
+DY:"Builds and maintains fiber and wireless networks for telecom carriers and hyperscalers. Fiber demand for AI connectivity is the tailwind.",
+PWR:"Largest US specialty contractor for electric transmission and utility infrastructure. Large-cap reference for the grid build-out.",
+MTZ:"Infrastructure contractor for power delivery, communications, pipelines and clean energy. Data-center related work is a growing slice.",
+AGX:"Builds gas-fired power plants through its Gemma subsidiary and does industrial field services. New power-demand forecasts have lifted its backlog.",
+WLDN:"Consulting and engineering firm focused on energy efficiency, grid planning and infrastructure. Small and sensitive to project timing.",
+FLR:"Global engineering and construction company working through a turnaround after past project losses. AI-related exposure is indirect.",
+CRWV:"Specialized GPU cloud renting NVIDIA capacity to AI labs and large tech firms. Growth is rapid but funded with heavy debt and concentrated in a few customers.",
+NBIS:"AI infrastructure company that spun out of Yandex's international assets and rents GPU capacity and AI cloud services. Early-stage and capital-hungry.",
+APLD:"Builds and operates data-center campuses designed for AI workloads and leases them to cloud customers. Dependent on a small number of tenants.",
+IREN:"Former bitcoin miner building AI cloud and high-performance computing capacity on renewable power. Volatile and capital-intensive.",
+CORZ:"Bitcoin miner that leases data-center capacity to AI cloud customers such as CoreWeave. Contract conversion is the main driver.",
+CIFR:"Bitcoin miner pivoting to AI and high-performance computing hosting with long-term leases. Speculative and debt-funded.",
+WULF:"Bitcoin miner converting sites to high-performance computing hosting under long-term tenant contracts. Speculative and debt-funded.",
+EQIX:"Largest data-center colocation and interconnection REIT. A more stable AI-adjacent holding than the neocloud names.",
+DLR:"Data-center REIT leasing large wholesale space to hyperscalers and enterprises. Benefits from AI-driven leasing demand.",
+SMCI:"Builds servers optimised for AI, with fast time-to-market on new NVIDIA platforms. Thin margins and past accounting and governance concerns add risk.",
+PSTG:"All-flash storage and data-management provider; its systems feed data into AI training and inference pipelines.",
+STX:"Hard-drive maker for data centers. AI creates large datasets that need cheap high-capacity storage.",
+WDC:"Hard-drive and flash maker; capacity drives for cloud data centers are its growth area. Cyclical but cheap on earnings.",
+AEIS:"Supplies precision power-conversion systems for semiconductor-equipment makers and, increasingly, for data-center and industrial uses. Combines chip-capex exposure with server-power exposure.",
+CAMT:"Israeli maker of inspection and metrology systems for advanced chip packaging, a bottleneck step in AI chip production.",
+ONTO:"Provides process-control and inspection equipment for advanced packaging and leading-edge chip making.",
+FORM:"Makes probe cards and test equipment used to test chips, including high-bandwidth memory for AI accelerators.",
+ICHR:"Builds gas-delivery and fluid subsystems for chip-making equipment. Highly tied to wafer-fab equipment cycles.",
+UCTT:"Makes critical subsystems and parts for semiconductor equipment makers. Low margins, strongly cyclical.",
+AMKR:"Outsourced chip assembly and test provider with advanced packaging capability. Beneficiary of packaging capacity for AI chips.",
+LSCC:"Designs low-power programmable chips (FPGAs) used in servers, communications and edge AI.",
+MPWR:"Designs power-management chips including those used on AI server boards. High-quality franchise at a high multiple.",
+RMBS:"Licenses memory-interface technology and sells chips that sit between processors and memory. Benefits from DDR5 and server memory growth.",
+SITM:"Makes MEMS-based precision timing chips used in AI data-center systems and other markets. High growth, high valuation.",
+AMBQ:"Designs ultra-low-power chips for wearables and edge AI. Newly public and small; growth depends on product wins.",
+POWI:"Designs high-voltage power-conversion chips for chargers, appliances and industrial uses, with a push into data-center power.",
+NVMI:"Israeli maker of process-control metrology tools for advanced chip nodes and packaging.",
+TSEM:"Specialty foundry with strengths in analog and silicon photonics, which is used in optical interconnects for AI clusters.",
+TSM:"Manufactures the majority of the world's leading-edge AI chips for NVIDIA, AMD and others. Mega-cap reference name.",
+NVDA:"Dominant supplier of AI accelerators and the software ecosystem around them. Mega-cap reference name.",
+MU:"One of three major DRAM makers and a supplier of high-bandwidth memory for AI accelerators. Memory pricing is cyclical.",
+CRDO:"Designs high-speed connectivity chips and active electrical cables that link AI servers inside racks. Fast growth, concentrated customers.",
+ALAB:"Designs connectivity chips that move data between GPUs, CPUs and memory in AI servers. Newly public and priced for growth.",
+COHR:"Makes lasers, optical components and transceivers used in AI data-center networks, plus industrial lasers.",
+LITE:"Makes lasers and optical components for data-center and telecom networks. AI optical links are the growth driver.",
+CIEN:"Optical networking equipment used to connect data centers and carrier networks over long distances.",
+FN:"Contract manufacturer of optical and precision components for NVIDIA and optical module makers.",
+CLS:"Canadian electronics manufacturer building servers and switches for hyperscalers. Rapid AI-driven growth with thin margins.",
+AAOI:"Makes optical transceivers for data centers. Customer concentration makes results volatile.",
+MTSI:"Supplies analog, mixed-signal and optical semiconductors for data-center and telecom networks.",
+BELFA:"Makes power, magnetics and connectivity components used in networking and data-center equipment. Small and thinly followed.",
+CSCO:"Networking incumbent with growing AI-cluster switching and optics sales. Large-cap reference name.",
+ANET:"Builds high-speed Ethernet switches used in hyperscale AI clusters. Large-cap reference name.",
+DDOG:"Cloud monitoring and security platform used by engineers to watch applications and infrastructure, including AI workloads.",
+SNOW:"Cloud data platform that is adding AI tools for analytics. Valued on growth, not current profits.",
+MDB:"Developer data platform whose document database is used by many applications, increasingly with AI features.",
+NET:"Global edge network offering security, content delivery and inference services close to users.",
+PLTR:"Sells data-analytics and AI platforms to governments and enterprises. Growth is strong but the valuation is extreme.",
+ESTC:"Search and analytics software, widely used for observability and vector search in AI applications.",
+DOCN:"Cloud provider for startups and small businesses, adding GPU and AI services.",
+GTLB:"DevSecOps platform for software teams that is adding AI coding and workflow features.",
+PATH:"Robotic process automation software moving toward AI-driven agentic automation.",
+SOUN:"Voice AI platform for automotive, restaurants and customer service. Small, unprofitable and speculative.",
+INTU:"Maker of TurboTax, QuickBooks and Credit Karma, adding AI assistants across its products. Large-cap reference name.",
+MSFT:"Runs Azure, owns a large stake in OpenAI and sells Copilot assistants across its software. Mega-cap reference name.",
+GOOGL:"Owns Google Search, YouTube and Google Cloud; builds Gemini models and its own TPU chips. Mega-cap reference name.",
+APP:"Ad-technology company using machine learning to match advertisers with mobile app users. Highly profitable and volatile.",
+DT:"Observability and security platform that uses AI to find and fix problems in software systems.",
+PGY:"Uses AI to underwrite loans for banks and credit unions through a lending network. Results depend on credit performance and funding markets.",
+SEZL:"Buy-now-pay-later provider for smaller merchants and consumers with algorithmic underwriting. Fast growth with credit risk.",
+DUOL:"Language-learning app using AI to personalize lessons and add conversational practice. Large and growing user base.",
+SDGR:"Software company combining physics-based modeling and machine learning for drug discovery, plus its own pipeline.",
+UPST:"AI-based lending marketplace connecting borrowers with lenders. Results are very sensitive to interest rates and funding.",
+TEM:"Genomic testing and data company applying AI to clinical decisions and drug development.",
+RXRX:"Biotech using automated lab experiments and machine learning to find drug candidates. Pre-revenue pipeline risk.",
+DOCS:"Online network of US physicians that sells marketing and workflow tools, with AI note-taking and search features.",
+PEGA:"Enterprise software for workflow automation and customer decisioning, adding generative-AI design tools.",
+TWLO:"Communications platform used to embed messaging and voice into apps, including AI agents and chatbots.",
+ZETA:"Marketing technology company using AI and consumer data to personalise and target campaigns."
+};
+const TRISK={power:"Equipment orders can slow if data-center spending pauses; commodity and supply-chain costs swing margins.",build:"Project timing and cost overruns hit small-margin contractors; heavy dependence on a few big customers.",compute:"Capital-intensive, debt-funded and tied to a few tenants; a pullback in AI capex would hit these names hardest.",semis:"Semiconductor cycles are sharp; export controls and customer concentration can move results quickly.",net:"Customer concentration among a few hyperscalers; competition and product-cycle swings are common.",soft:"Multiples assume sustained growth; AI features may be commoditised or priced into the stock.",apps:"Business models are less proven; credit, funding or clinical outcomes can dominate the AI story."};
+
+const U=D.map(r=>({t:r[0],n:r[1],th:r[2],cap:r[3],pe:r[4],g:r[5],m:r[6],ai:r[7],rk:r[8],res:r[9]===1,note:r[10]}));
+const THI={};TH.forEach((t,i)=>{THI[t.id]={name:t.name,i:i+1}});
+const CAPS=[{id:'S',lab:'< $3B',f:c=>c<3},{id:'M',lab:'$3–15B',f:c=>c>=3&&c<15},{id:'L',lab:'$15–75B',f:c=>c>=15&&c<75},{id:'X',lab:'> $75B',f:c=>c>=75}];
+const capOf=c=>CAPS.find(b=>b.f(c)).id;
+const W={g:25,v:20,q:15,ai:20,s:10,sm:10};
+const WL={g:'Growth',v:'Valuation',q:'Op. margin',ai:'AI exposure',s:'Safety',sm:'Small-cap tilt'};
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function comps(u){return {g:clamp(u.g,0,50)/50, v:u.pe==null?0.25:clamp(1-u.pe/60,0,1), q:u.m==null?0:clamp(u.m,0,40)/40,
+    ai:(u.ai-1)/4, s:(5-u.rk)/4, sm:clamp(1-Math.log10(u.cap)/3,0,1)}}
+function score(u){
+  const s=comps(u);
+  let tot=0,ws=0;for(const k in W){tot+=s[k]*W[k];ws+=W[k]}
+  return ws?100*tot/ws:0;
+}
+const F0={themes:new Set(TH.map(t=>t.id)),caps:new Set(CAPS.map(c=>c.id)),pe:100,g:-10,m:0,ai:1,rk:5,nm:true,res:false,q:''};
+let F=JSON.parse(JSON.stringify({...F0,themes:[...F0.themes],caps:[...F0.caps]}));F.themes=new Set(F.themes);F.caps=new Set(F.caps);
+let sortK='score',sortD=-1,charts=[];
+const $=id=>document.getElementById(id);
+const tok=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tcol=id=>tok('--c'+THI[id].i);
+const med=a=>{const b=a.filter(x=>x!=null).sort((x,y)=>x-y);if(!b.length)return null;const m=b.length>>1;return b.length%2?b[m]:(b[m-1]+b[m])/2};
+const fmtCap=c=>c>=1000?'$'+(c/1000).toFixed(1)+'T':'$'+(c>=10?Math.round(c):c)+'B';
+const fmtPE=p=>p==null?'n/m':p.toFixed(0)+'×';
+const fmtPct=p=>p==null?'–':(p>0?'':'')+p+'%';
+
+function scoreAll(){U.forEach(u=>u.s=score(u));[...U].sort((a,b)=>b.s-a.s).forEach((u,i)=>u.rank=i+1)}
+
+/* ---------- top 5 ---------- */
+const TOP=[
+ {t:'MOD',thesis:'A century-old auto-parts maker rebuilt around thermal management. Chillers and coolers for data centers are now the growth engine, and the multiple still looks like an industrial’s, not an AI name’s.',watch:'Capacity ramp execution; hyperscaler order timing; legacy HVAC cyclicality.'},
+ {t:'MYRG',thesis:'Electrical contractor building transmission, distribution and data-center power. It earns thin margins but sits on the bottleneck: getting megawatts to the site.',watch:'Project timing and cost overruns; thin margins leave little room for error.'},
+ {t:'AEIS',thesis:'Precision power conversion for semiconductor tools and, increasingly, data-center power supplies. Two AI tailwinds, chip-making capacity and server power density, with healthy margins.',watch:'Semiconductor equipment cycle; customer concentration in a few tool makers.'},
+ {t:'IESC',thesis:'Electrical and technology contractor with a growing data-center and e-infrastructure book. Backlog and margin expansion are the story; it is still a small, under-followed company.',watch:'Dependence on a few large data-center projects; residential segment softness.'},
+ {t:'POWL',thesis:'Builds the switchgear and power-control gear that sits between the grid and the load, for utilities, industrials and data centers. Backlog gives revenue visibility.',watch:'Lumpy orders and slow conversion; copper and component cost swings.'}
+];
+function renderTop(){
+  const mG=med(U.map(u=>u.g)),mM=med(U.map(u=>u.m)),mP=med(U.map(u=>u.pe)),mA=med(U.map(u=>u.ai));
+  const sc=(v,max)=>clamp(v/max*100,0,100);
+  $('top5').innerHTML=TOP.map((p,i)=>{
+    const u=U.find(x=>x.t===p.t),c='var(--c'+THI[u.th].i+')';
+    const row=(lab,v,med,max,txt,col)=>`<div class="brow"><span>${lab}</span><div class="btrack"><div class="bfill" style="width:${sc(v==null?0:v,max)}%;background:${col}"></div><div class="bmed" style="left:${sc(med,max)}%"></div></div><span class="bval mono">${txt}</span></div>`;
+    return `<article class="card"><div class="card-top"><div><div class="tkr">${u.t}</div><div class="cname">${u.n}</div><div class="tag" style="margin-top:4px"><span class="dot" style="background:${c}"></span>${THI[u.th].name} · ${fmtCap(u.cap)}</div></div><div class="rk mono">#${i+1}</div></div>
+    <p class="thesis">${p.thesis}</p>
+    <div class="bars">
+      ${row('Rev. growth',u.g,mG,60,u.g+'%',c)}
+      ${row('Op. margin',u.m,mM,50,fmtPct(u.m),c)}
+      ${row('Fwd P/E',u.pe,mP,60,fmtPE(u.pe),c)}
+      ${row('AI exposure',u.ai,mA,5,u.ai+'/5',c)}
+      ${row('Screen score',u.s,50,100,u.s.toFixed(0),c)}
+    </div>
+    <div class="legend-note">Tick = universe median. Screen rank #${u.rank} of 100 at current weights.</div>
+    <div class="watch"><div><b>Why it fits:</b> ${u.note}.</div><div><b>Watch:</b> ${p.watch}</div></div><button class="btn" data-t="${u.t}">Background &amp; price chart →</button></article>`;}).join('');
+}
+
+/* ---------- controls ---------- */
+function buildControls(){
+  $('themeChips').innerHTML=TH.map(t=>`<button class="chip" data-th="${t.id}" aria-pressed="true"><span class="dot" style="background:var(--c${THI[t.id].i})"></span>${t.name}</button>`).join('');
+  $('capChips').innerHTML=CAPS.map(c=>`<button class="chip" data-cap="${c.id}" aria-pressed="true">${c.lab}</button>`).join('');
+  $('wBox').innerHTML=Object.keys(W).map(k=>`<div class="ctl"><label for="w_${k}">${WL[k]} <span id="wv_${k}">${W[k]}</span></label><input id="w_${k}" type="range" min="0" max="40" step="5" value="${W[k]}" data-w="${k}"></div>`).join('');
+  document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{const id=b.dataset.th;F.themes.has(id)?F.themes.delete(id):F.themes.add(id);b.setAttribute('aria-pressed',F.themes.has(id));update()});
+  document.querySelectorAll('[data-cap]').forEach(b=>b.onclick=()=>{const id=b.dataset.cap;F.caps.has(id)?F.caps.delete(id):F.caps.add(id);b.setAttribute('aria-pressed',F.caps.has(id));update()});
+  [['fPE','pe','vPE',v=>v>=100?'any':v+'×'],['fG','g','vG',v=>v<=-10?'any':v+'%'],['fM','m','vM',v=>v<=0?'any':v+'%'],['fAI','ai','vAI',v=>'≥ '+v],['fR','rk','vR',v=>'≤ '+v]].forEach(([id,k,lab,f])=>{
+    $(id).oninput=e=>{F[k]=+e.target.value;$(lab).textContent=f(F[k]);update()};$(lab).textContent=f(F[k]);});
+  $('fQ').oninput=e=>{F.q=e.target.value.trim().toLowerCase();update()};
+  $('fNM').onchange=e=>{F.nm=e.target.checked;update()};
+  $('fRes').onchange=e=>{F.res=e.target.checked;update()};
+  document.querySelectorAll('[data-w]').forEach(i=>i.oninput=e=>{W[i.dataset.w]=+i.value;$('wv_'+i.dataset.w).textContent=i.value;update()});
+  $('reset').onclick=()=>{
+    F={...F0,themes:new Set(F0.themes),caps:new Set(F0.caps)};
+    document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed','true'));
+    $('fPE').value=100;$('fG').value=-10;$('fM').value=0;$('fAI').value=1;$('fR').value=5;$('fQ').value='';$('fNM').checked=true;$('fRes').checked=false;
+    ['fPE','fG','fM','fAI','fR'].forEach(id=>$(id).dispatchEvent(new Event('input')));
+  };
+}
+function filtered(){
+  return U.filter(u=>F.themes.has(u.th)&&F.caps.has(capOf(u.cap))&&(u.pe==null?F.nm:u.pe<=F.pe)&&u.g>=F.g&&(u.m==null?F.m<=0:u.m>=F.m)&&u.ai>=F.ai&&u.rk<=F.rk&&(!F.res||u.res)&&(!F.q||(u.t+' '+u.n).toLowerCase().includes(F.q)));
+}
+
+/* ---------- charts ---------- */
+function baseOpts(){
+  Chart.defaults.color=tok('--ink2');Chart.defaults.font.family="'IBM Plex Sans',system-ui,sans-serif";Chart.defaults.font.size=11;
+  return {responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{backgroundColor:tok('--panel'),titleColor:tok('--ink'),bodyColor:tok('--ink2'),borderColor:tok('--line'),borderWidth:1,padding:10}}};
+}
+function axis(title,extra={}){return {grid:{color:tok('--grid')},border:{color:tok('--line')},ticks:{color:tok('--ink2')},title:title?{display:true,text:title,color:tok('--ink2')}:{display:false},...extra}}
+function drawCharts(L){
+  charts.forEach(c=>c.destroy());charts=[];
+  const surf=tok('--panel');
+  // 1 scatter
+  const sc=L.filter(u=>u.pe!=null&&u.pe<=80&&u.g<=120);
+  const hidden=L.length-sc.length;
+  $('n1').textContent=hidden?`${hidden} filtered name${hidden>1?'s':''} not plotted (no meaningful P/E, P/E above 80×, or growth above 120%). They remain in the table.`:'';
+  const o1=baseOpts();
+  o1.plugins.tooltip.callbacks={title:i=>i[0].raw.t+' · '+i[0].raw.n,label:i=>[`Fwd P/E ${i.raw.x}× · growth ${i.raw.y}%`,`Score ${i.raw.s.toFixed(0)} · ${THI[i.raw.th].name}`]};
+  o1.onClick=(e,els,ch)=>{if(els.length)openDetail(ch.data.datasets[els[0].datasetIndex].data[els[0].index].t)};
+  o1.scales={x:axis('Forward P/E (×)',{min:0,max:80}),y:axis('Revenue growth (%)',{min:-10})};
+  charts.push(new Chart($('c1'),{type:'scatter',data:{datasets:TH.map(t=>({label:t.name,backgroundColor:tcol(t.id),borderColor:surf,borderWidth:1.5,pointRadius:6,pointHoverRadius:8,
+    data:sc.filter(u=>u.th===t.id).map(u=>({x:u.pe,y:u.g,t:u.t,n:u.n,s:u.s,th:u.th}))}))},options:o1}));
+  // 2 top10
+  const top=[...L].sort((a,b)=>b.s-a.s).slice(0,10);
+  const o2=baseOpts();o2.indexAxis='y';
+  o2.plugins.tooltip.callbacks={title:i=>top[i[0].dataIndex].t+' · '+top[i[0].dataIndex].n,label:i=>'Score '+i.raw.toFixed(1)+' · '+THI[top[i.dataIndex].th].name};
+  o2.onClick=(e,els)=>{if(els.length)openDetail(top[els[0].index].t)};
+  o2.scales={x:axis('Screen score',{min:0,max:100}),y:{grid:{display:false},border:{color:tok('--line')},ticks:{color:tok('--ink'),font:{family:"'IBM Plex Mono',monospace"}}}};
+  charts.push(new Chart($('c2'),{type:'bar',data:{labels:top.map(u=>u.t),datasets:[{data:top.map(u=>u.s),backgroundColor:top.map(u=>tcol(u.th)),borderRadius:4,barThickness:16}]},options:o2}));
+  // 3 theme avg
+  const rows=TH.map(t=>{const a=L.filter(u=>u.th===t.id);return {t,n:a.length,v:a.length?a.reduce((s,u)=>s+u.s,0)/a.length:0}}).filter(r=>r.n).sort((a,b)=>b.v-a.v);
+  const o3=baseOpts();o3.indexAxis='y';
+  o3.plugins.tooltip.callbacks={label:i=>`Average score ${i.raw.toFixed(1)} across ${rows[i.dataIndex].n} companies`};
+  o3.scales={x:axis('Average screen score',{min:0,max:100}),y:{grid:{display:false},border:{color:tok('--line')},ticks:{color:tok('--ink')}}};
+  charts.push(new Chart($('c3'),{type:'bar',data:{labels:rows.map(r=>`${r.t.name} (${r.n})`),datasets:[{data:rows.map(r=>r.v),backgroundColor:rows.map(r=>tcol(r.t.id)),borderRadius:4,barThickness:18}]},options:o3}));
+  // 4 histogram
+  const bins=[['< 0%',x=>x<0],['0–10%',x=>x>=0&&x<10],['10–20%',x=>x>=10&&x<20],['20–30%',x=>x>=20&&x<30],['30–50%',x=>x>=30&&x<50],['50–100%',x=>x>=50&&x<100],['100%+',x=>x>=100]];
+  const counts=bins.map(b=>L.filter(u=>b[1](u.g)).length);
+  const o4=baseOpts();o4.plugins.tooltip.callbacks={label:i=>i.raw+' companies'};
+  o4.scales={x:axis('Revenue growth band',{grid:{display:false}}),y:axis('Companies',{beginAtZero:true,ticks:{color:tok('--ink2'),precision:0}})};
+  charts.push(new Chart($('c4'),{type:'bar',data:{labels:bins.map(b=>b[0]),datasets:[{data:counts,backgroundColor:tok('--c1'),borderRadius:4}]},options:o4}));
+}
+
+/* ---------- table ---------- */
+const COLS=[['rank','#',u=>u.rank],['t','Company',u=>u.t],['th','Theme',u=>THI[u.th].name],['cap','Cap',u=>u.cap],['pe','Fwd P/E',u=>u.pe==null?1e9:u.pe],['g','Growth',u=>u.g],['m','Margin',u=>u.m==null?-1e9:u.m],['ai','AI',u=>u.ai],['rk','Risk',u=>u.rk],['score','Score',u=>u.s],['d','Data',u=>u.res?1:0]];
+function renderTable(L){
+  const col=COLS.find(c=>c[0]===sortK)||COLS[9];
+  const rows=[...L].sort((a,b)=>{const x=col[2](a),y=col[2](b);return (x<y?-1:x>y?1:0)*sortD});
+  $('tbl').tHead.innerHTML='<tr>'+COLS.map(c=>`<th data-k="${c[0]}" ${c[0]===sortK?`aria-sort="${sortD>0?'ascending':'descending'}"`:''}>${c[1]}${c[0]===sortK?(sortD>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
+  $('tbl').tHead.querySelectorAll('th').forEach(h=>h.onclick=()=>{const k=h.dataset.k;if(sortK===k)sortD*=-1;else{sortK=k;sortD=['t','th'].includes(k)?1:-1}renderTable(L)});
+  $('tcount').textContent=`${L.length} of 100 companies`;
+  $('tbl').tBodies[0].innerHTML=rows.length?rows.map(u=>`<tr data-t="${u.t}" tabindex="0"><td class="n">${u.rank}</td><td><b class="mono">${u.t}</b> <span style="color:var(--ink2)">${u.n}</span><div class="nt">${u.note}</div></td><td><span class="tag"><span class="dot" style="background:var(--c${THI[u.th].i})"></span>${THI[u.th].name}</span></td><td class="n">${fmtCap(u.cap)}</td><td class="n">${fmtPE(u.pe)}</td><td class="n">${u.g}%</td><td class="n">${fmtPct(u.m)}</td><td class="n">${u.ai}</td><td class="n">${u.rk}</td><td class="n"><span class="sc" style="width:${u.s*0.4}px"></span>${u.s.toFixed(0)}</td><td><span class="est ${u.res?'r':''}">${u.res?'researched':'screen-only'}</span></td></tr>`).join(''):'<tr><td colspan="11" class="empty">No companies match these filters. Loosen a filter or press Reset.</td></tr>';
+}
+
+function renderKPIs(L){
+  const k=[['Companies',L.length],['Median fwd P/E',med(L.map(u=>u.pe))==null?'–':med(L.map(u=>u.pe)).toFixed(0)+'×'],['Median growth',med(L.map(u=>u.g))==null?'–':med(L.map(u=>u.g)).toFixed(0)+'%'],['Median op. margin',med(L.map(u=>u.m))==null?'–':med(L.map(u=>u.m)).toFixed(0)+'%'],['Avg score',L.length?(L.reduce((s,u)=>s+u.s,0)/L.length).toFixed(0):'–']];
+  $('kpis').innerHTML=k.map(([a,b])=>`<div class="kpi"><div class="v">${b}</div><div class="k">${a}</div></div>`).join('');
+}
+
+function update(){scoreAll();const L=filtered();renderTop();renderKPIs(L);drawCharts(L);renderTable(L)}
+
+/* ---------- detail panel ---------- */
+let lastFocus=null;
+const bar=(lab,v,m,max,txt,col)=>`<div class="brow wide"><span>${lab}</span><div class="btrack"><div class="bfill" style="width:${clamp((v==null?0:v)/max*100,0,100)}%;background:${col}"></div>${m==null?'':`<div class="bmed" style="left:${clamp(m/max*100,0,100)}%"></div>`}</div><span class="bval mono">${txt}</span></div>`;
+function openDetail(t){
+  const u=U.find(x=>x.t===t);if(!u)return;
+  const c='var(--c'+THI[u.th].i+')',cs=comps(u),ws=Object.values(W).reduce((a,b)=>a+b,0)||1;
+  const peers=U.filter(x=>x.th===u.th),mg=med(peers.map(x=>x.g)),mm=med(peers.map(x=>x.m)),mp=med(peers.map(x=>x.pe)),ma=med(peers.map(x=>x.ai));
+  const near=peers.filter(x=>x.t!==u.t).sort((a,b)=>b.s-a.s).slice(0,6);
+  const q=encodeURIComponent(u.t);
+  $('dBody').innerHTML=`
+  <div class="dh"><div class="tkr" id="dT">${u.t}</div><div class="cname">${u.n}</div>
+    <div class="tag" style="margin-top:6px"><span class="dot" style="background:${c}"></span>${THI[u.th].name} · ${fmtCap(u.cap)} · <span class="est ${u.res?'r':''}">${u.res?'researched':'screen-only'}</span></div></div>
+  <div class="dsec"><h4>Background</h4><p>${BG[u.t]}</p></div>
+  <div class="dsec"><h4>Key risk</h4><p>${TRISK[u.th]}</p></div>
+  <div class="dsec"><h4>Snapshot (approximate)</h4><div class="stats">
+    <div class="stat"><div class="v">${fmtCap(u.cap)}</div><div class="k">Market cap</div></div>
+    <div class="stat"><div class="v">${fmtPE(u.pe)}</div><div class="k">Forward P/E</div></div>
+    <div class="stat"><div class="v">${u.g}%</div><div class="k">Revenue growth</div></div>
+    <div class="stat"><div class="v">${fmtPct(u.m)}</div><div class="k">Op. margin</div></div>
+    <div class="stat"><div class="v">${u.s.toFixed(0)}</div><div class="k">Screen score · #${u.rank}</div></div></div></div>
+  <div class="dsec"><h4>Versus theme median (tick)</h4><div class="bars">
+    ${bar('Revenue growth',u.g,mg,60,u.g+'%',c)}${bar('Op. margin',u.m,mm,50,fmtPct(u.m),c)}${bar('Forward P/E (lower is better)',u.pe,mp,60,fmtPE(u.pe),c)}${bar('AI exposure',u.ai,ma,5,u.ai+'/5',c)}</div></div>
+  <div class="dsec"><h4>Why it scores ${u.s.toFixed(0)} (sub-score 0–100, weight in brackets)</h4><div class="bars">
+    ${Object.keys(W).map(k=>bar(`${WL[k]} (${Math.round(W[k]/ws*100)}%)`,cs[k]*100,null,100,Math.round(cs[k]*100),c)).join('')}</div></div>
+  <div class="dsec"><h4>Price history</h4><div class="pbox">An in-page price chart isn't possible here: this page can't reach market-data feeds, and I won't draw invented prices. These open the live historical chart for ${u.t} in a new tab.
+    <div class="links"><a href="https://finance.yahoo.com/quote/${q}/chart" target="_blank" rel="noopener">Yahoo Finance chart</a><a href="https://www.tradingview.com/chart/?symbol=${q}" target="_blank" rel="noopener">TradingView</a><a href="https://stockanalysis.com/stocks/${u.t.toLowerCase()}/" target="_blank" rel="noopener">StockAnalysis (history &amp; financials)</a></div></div></div>
+  <div class="dsec"><h4>Peers in ${THI[u.th].name}</h4><div class="peers">${near.map(x=>`<button class="chip" data-t="${x.t}"><span class="mono">${x.t}</span> ${x.s.toFixed(0)}</button>`).join('')}</div></div>`;
+  if($('ov').hidden){lastFocus=document.activeElement;document.body.style.overflow='hidden'}
+  $('ov').hidden=false;$('ov').scrollTop=0;$('dx').focus();
+}
+function closeDetail(){$('ov').hidden=true;document.body.style.overflow='';if(lastFocus&&lastFocus.focus)try{lastFocus.focus()}catch(e){}}
+$('dx').onclick=closeDetail;
+$('ov').addEventListener('click',e=>{if(e.target===$('ov'))closeDetail()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('ov').hidden)closeDetail();if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))openDetail(e.target.dataset.t)});
+document.addEventListener('click',e=>{const el=e.target.closest('[data-t]');if(el&&el.tagName!=='CANVAS')openDetail(el.dataset.t)});
+
+buildControls();update();
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',update)}catch(e){}
+new MutationObserver(update).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+</script>
+
+</body></html>
