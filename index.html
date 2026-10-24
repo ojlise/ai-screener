@@ -121,10 +121,10 @@ footer{font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:6
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">Screener · as of 3 Oct 2026 · 100 names</div>
+  <div class="eyebrow">Updated 24 Oct 2026 · 100 names</div>
   <h1>AI Transition Screener</h1>
   <p class="lede">100 companies positioned for the AI build-out and its second-order winners, skewed toward small and mid caps. Start with the five front-page picks, then filter the full universe and watch every chart re-cut.</p>
-  <div class="notice"><b>Read this first.</b> Figures are rounded, approximate screening estimates compiled from research up to early Oct 2026, not live quotes. “Researched” names got a closer look in this conversation; the rest are screen-only. AI exposure and risk are my own 1–5 judgments. Verify every number with a live source before acting. This is not financial advice.</div>
+  <div class="notice"><b>Read this first.</b> 16 names are tagged “refreshed”: their market cap, forward P/E, growth and margin were updated on 24 Oct 2026 from Yahoo Finance and StockAnalysis pages (each carries its data date; a few pages were cached from earlier weeks). The other 84 are rounded estimates from early Oct 2026 and may be stale. These are web-page figures, not a live feed. AI exposure and risk are my own 1–5 judgments. Verify every number with a live source before acting. This is not financial advice.</div>
 </header>
 
 <section>
@@ -189,8 +189,8 @@ const TH=[
  {id:'semis',name:'Semis & Equipment'},{id:'net',name:'Networking & Optics'},{id:'soft',name:'Software & Data'},{id:'apps',name:'AI Apps, Fintech & Bio'}];
 const D=[
 ['VRT','Vertiv','power',55,38,25,20,5,3,0,'Rack power and liquid cooling for data centers'],
-['MOD','Modine','power',8,24,15,11,4,3,1,'Pivot from auto parts to data-center thermal management'],
-['POWL','Powell Industries','power',4,22,10,17,4,3,1,'Switchgear and power control; lumpy but large backlog'],
+['MOD','Modine','power',10.3,26,28,9,4,3,1,'Pivot from auto parts to data-center thermal management','Oct 2026'],
+['POWL','Powell Industries','power',5.5,23.4,10,20,4,3,1,'Switchgear and power control; lumpy but large backlog','Oct 23, 2026'],
 ['BE','Bloom Energy','power',25,null,60,5,5,5,0,'On-site fuel-cell power for data centers'],
 ['NVT','nVent Electric','power',15,25,20,17,4,2,0,'Enclosures, liquid cooling and power distribution'],
 ['HUBB','Hubbell','power',23,24,8,20,3,2,0,'Grid and electrical components'],
@@ -207,9 +207,9 @@ const D=[
 ['VST','Vistra','power',55,20,12,25,4,3,0,'Merchant power benefiting from load growth'],
 ['ETN','Eaton','power',140,28,8,20,4,2,0,'Electrical gear (large-cap reference)'],
 ['GEV','GE Vernova','power',170,40,12,12,4,3,0,'Turbines and grid equipment (large-cap reference)'],
-['MYRG','MYR Group','build',3,20,10,6,4,3,1,'Electrical T&D and data-center power construction'],
-['IESC','IES Holdings','build',6,22,15,12,4,3,1,'Electrical contractor with data-center backlog'],
-['STRL','Sterling Infrastructure','build',9,25,15,13,4,3,1,'Site development and e-infrastructure'],
+['MYRG','MYR Group','build',4.0,19.8,16,6,4,3,1,'Electrical T&D and data-center power construction','Oct 23, 2026'],
+['IESC','IES Holdings','build',12.4,29,15,12,4,3,1,'Electrical contractor with data-center backlog','Oct 2026'],
+['STRL','Sterling Infrastructure','build',15.8,19.7,90,20,4,3,1,'Site development and e-infrastructure','Oct 9, 2026'],
 ['PRIM','Primoris Services','build',6,20,10,6,3,3,0,'Utility and power construction'],
 ['EME','EMCOR Group','build',25,24,12,9,4,2,0,'Mechanical/electrical contractor, data-center heavy'],
 ['FIX','Comfort Systems USA','build',28,32,20,11,5,3,0,'Mechanical contractor with data-center mix'],
@@ -232,7 +232,7 @@ const D=[
 ['PSTG','Pure Storage','compute',20,38,15,10,4,3,0,'Flash storage for AI data pipelines'],
 ['STX','Seagate','compute',30,15,25,25,4,3,0,'High-capacity drives for AI data lakes'],
 ['WDC','Western Digital','compute',30,14,15,24,4,3,0,'Hard drives, cheap on earnings'],
-['AEIS','Advanced Energy','semis',7,20,15,15,4,3,1,'Precision power for chip tools and data centers'],
+['AEIS','Advanced Energy','semis',8.7,15.8,15,14,4,3,1,'Precision power for chip tools and data centers','Oct 23, 2026'],
 ['CAMT','Camtek','semis',4,28,20,28,4,3,0,'Inspection for advanced packaging'],
 ['ONTO','Onto Innovation','semis',5,25,10,25,4,3,0,'Process control for advanced packaging'],
 ['FORM','FormFactor','semis',3,30,15,15,4,3,0,'Probe cards for HBM and AI chips'],
@@ -247,7 +247,7 @@ const D=[
 ['POWI','Power Integrations','semis',3,30,10,6,3,3,0,'High-voltage power conversion'],
 ['NVMI','Nova Ltd','semis',7,20,12,30,4,3,0,'Metrology for advanced nodes'],
 ['TSEM','Tower Semiconductor','semis',5,30,10,12,3,3,0,'Specialty foundry, silicon photonics'],
-['TSM','TSMC','semis',1000,20,30,45,5,2,1,'World’s leading foundry (mega-cap reference)'],
+['TSM','TSMC','semis',2010,21.4,50.9,58.7,5,2,1,'World’s leading foundry (mega-cap reference)','Oct 2026'],
 ['NVDA','NVIDIA','semis',4500,28,50,60,5,2,1,'AI accelerators (mega-cap reference)'],
 ['MU','Micron Technology','semis',250,10,40,35,4,3,0,'HBM memory; cyclical'],
 ['CRDO','Credo Technology','net',25,40,90,30,5,4,1,'Active electrical cables and SerDes for AI clusters'],
@@ -256,13 +256,13 @@ const D=[
 ['LITE','Lumentum','net',20,40,40,12,5,4,0,'Lasers for AI optical links'],
 ['CIEN','Ciena','net',20,35,20,10,4,3,0,'Optical networking for data-center interconnect'],
 ['FN','Fabrinet','net',15,30,15,10,4,3,0,'Optical manufacturing partner'],
-['CLS','Celestica','net',35,35,60,9,4,4,1,'AI server and switch manufacturing'],
+['CLS','Celestica','net',38.8,26.9,47,8.8,4,4,1,'AI server and switch manufacturing','Oct 2026'],
 ['AAOI','Applied Optoelectronics','net',3,null,50,5,5,5,0,'Optical transceivers, volatile'],
 ['MTSI','MACOM','net',15,32,20,28,4,3,0,'Analog and optical semis'],
-['BELFA','Bel Fuse','net',3,18,20,15,3,3,1,'Power and connectivity components'],
-['CSCO','Cisco Systems','net',260,17,8,25,3,2,1,'Networking incumbent (large-cap reference)'],
+['BELFA','Bel Fuse','net',3.56,21.2,20,15,3,3,1,'Power and connectivity components','Oct 2026'],
+['CSCO','Cisco Systems','net',435,20.5,17.6,27.7,3,2,1,'Networking incumbent (large-cap reference)','Oct 23, 2026'],
 ['ANET','Arista Networks','net',160,38,25,42,5,3,0,'AI-cluster Ethernet switching'],
-['DDOG','Datadog','soft',45,55,25,22,4,3,1,'Observability for AI workloads'],
+['DDOG','Datadog','soft',90.3,84.8,35.6,0.7,4,3,1,'Observability for AI workloads','Oct 2026'],
 ['SNOW','Snowflake','soft',75,null,28,8,4,3,0,'Data platform adding AI features'],
 ['MDB','MongoDB','soft',25,45,20,15,3,3,0,'Developer database platform'],
 ['NET','Cloudflare','soft',70,null,28,0,4,3,0,'Edge network and AI inference'],
@@ -273,13 +273,13 @@ const D=[
 ['PATH','UiPath','soft',7,20,8,15,3,3,0,'Automation moving to agentic AI'],
 ['SOUN','SoundHound AI','soft',4,null,100,null,3,5,0,'Voice AI, small and unprofitable'],
 ['INTU','Intuit','soft',190,28,12,28,3,2,1,'Financial software with AI assistants'],
-['MSFT','Microsoft','soft',3800,30,16,46,5,1,1,'Azure and Copilot (mega-cap reference)'],
-['GOOGL','Alphabet','soft',3500,22,14,32,5,2,1,'Gemini, TPUs and cloud (mega-cap reference)'],
+['MSFT','Microsoft','soft',3720,25.1,17.7,45,5,1,1,'Azure and Copilot (mega-cap reference)','Oct 23, 2026'],
+['GOOGL','Alphabet','soft',4120,22.8,24.2,34,5,2,1,'Gemini, TPUs and cloud (mega-cap reference)','Oct 2026'],
 ['APP','AppLovin','soft',150,35,40,75,4,4,0,'AI-driven ad optimisation'],
 ['DT','Dynatrace','soft',14,28,17,22,3,3,0,'AI-driven observability'],
-['PGY','Pagaya Technologies','apps',2.5,8,25,12,4,4,1,'AI credit decisioning network'],
-['SEZL','Sezzle','apps',3,15,50,25,3,4,1,'Buy-now-pay-later with algorithmic underwriting'],
-['DUOL','Duolingo','apps',10,28,30,25,4,3,1,'AI-powered language learning'],
+['PGY','Pagaya Technologies','apps',3.9,18.8,52,12,4,4,1,'AI credit decisioning network','Sep 18, 2026'],
+['SEZL','Sezzle','apps',1.9,5.4,50,25,3,4,1,'Buy-now-pay-later with algorithmic underwriting','Sep 4, 2026'],
+['DUOL','Duolingo','apps',6.8,19,18,12,4,3,1,'AI-powered language learning','Oct 9, 2026'],
 ['SDGR','Schrödinger','apps',1.5,null,5,null,3,4,1,'Physics-plus-AI drug discovery software'],
 ['UPST','Upstart','apps',5,25,30,8,4,5,0,'AI lending platform, rate-sensitive'],
 ['TEM','Tempus AI','apps',11,null,80,null,5,4,0,'AI-driven precision medicine'],
@@ -393,7 +393,7 @@ ZETA:"Marketing technology company using AI and consumer data to personalise and
 };
 const TRISK={power:"Equipment orders can slow if data-center spending pauses; commodity and supply-chain costs swing margins.",build:"Project timing and cost overruns hit small-margin contractors; heavy dependence on a few big customers.",compute:"Capital-intensive, debt-funded and tied to a few tenants; a pullback in AI capex would hit these names hardest.",semis:"Semiconductor cycles are sharp; export controls and customer concentration can move results quickly.",net:"Customer concentration among a few hyperscalers; competition and product-cycle swings are common.",soft:"Multiples assume sustained growth; AI features may be commoditised or priced into the stock.",apps:"Business models are less proven; credit, funding or clinical outcomes can dominate the AI story."};
 
-const U=D.map(r=>({t:r[0],n:r[1],th:r[2],cap:r[3],pe:r[4],g:r[5],m:r[6],ai:r[7],rk:r[8],res:r[9]===1,note:r[10]}));
+const U=D.map(r=>({t:r[0],n:r[1],th:r[2],cap:r[3],pe:r[4],g:r[5],m:r[6],ai:r[7],rk:r[8],res:r[9]===1,note:r[10],ref:r[11]||''}));
 const THI={};TH.forEach((t,i)=>{THI[t.id]={name:t.name,i:i+1}});
 const CAPS=[{id:'S',lab:'< $3B',f:c=>c<3},{id:'M',lab:'$3–15B',f:c=>c>=3&&c<15},{id:'L',lab:'$15–75B',f:c=>c>=15&&c<75},{id:'X',lab:'> $75B',f:c=>c>=75}];
 const capOf=c=>CAPS.find(b=>b.f(c)).id;
@@ -519,7 +519,7 @@ function renderTable(L){
   $('tbl').tHead.innerHTML='<tr>'+COLS.map(c=>`<th data-k="${c[0]}" ${c[0]===sortK?`aria-sort="${sortD>0?'ascending':'descending'}"`:''}>${c[1]}${c[0]===sortK?(sortD>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
   $('tbl').tHead.querySelectorAll('th').forEach(h=>h.onclick=()=>{const k=h.dataset.k;if(sortK===k)sortD*=-1;else{sortK=k;sortD=['t','th'].includes(k)?1:-1}renderTable(L)});
   $('tcount').textContent=`${L.length} of 100 companies`;
-  $('tbl').tBodies[0].innerHTML=rows.length?rows.map(u=>`<tr data-t="${u.t}" tabindex="0"><td class="n">${u.rank}</td><td><b class="mono">${u.t}</b> <span style="color:var(--ink2)">${u.n}</span><div class="nt">${u.note}</div></td><td><span class="tag"><span class="dot" style="background:var(--c${THI[u.th].i})"></span>${THI[u.th].name}</span></td><td class="n">${fmtCap(u.cap)}</td><td class="n">${fmtPE(u.pe)}</td><td class="n">${u.g}%</td><td class="n">${fmtPct(u.m)}</td><td class="n">${u.ai}</td><td class="n">${u.rk}</td><td class="n"><span class="sc" style="width:${u.s*0.4}px"></span>${u.s.toFixed(0)}</td><td><span class="est ${u.res?'r':''}">${u.res?'researched':'screen-only'}</span></td></tr>`).join(''):'<tr><td colspan="11" class="empty">No companies match these filters. Loosen a filter or press Reset.</td></tr>';
+  $('tbl').tBodies[0].innerHTML=rows.length?rows.map(u=>`<tr data-t="${u.t}" tabindex="0"><td class="n">${u.rank}</td><td><b class="mono">${u.t}</b> <span style="color:var(--ink2)">${u.n}</span><div class="nt">${u.note}</div></td><td><span class="tag"><span class="dot" style="background:var(--c${THI[u.th].i})"></span>${THI[u.th].name}</span></td><td class="n">${fmtCap(u.cap)}</td><td class="n">${fmtPE(u.pe)}</td><td class="n">${u.g}%</td><td class="n">${fmtPct(u.m)}</td><td class="n">${u.ai}</td><td class="n">${u.rk}</td><td class="n"><span class="sc" style="width:${u.s*0.4}px"></span>${u.s.toFixed(0)}</td><td><span class="est ${u.ref||u.res?'r':''}">${u.ref?'refreshed':u.res?'researched':'screen-only'}</span></td></tr>`).join(''):'<tr><td colspan="11" class="empty">No companies match these filters. Loosen a filter or press Reset.</td></tr>';
 }
 
 function renderKPIs(L){
@@ -540,10 +540,10 @@ function openDetail(t){
   const q=encodeURIComponent(u.t);
   $('dBody').innerHTML=`
   <div class="dh"><div class="tkr" id="dT">${u.t}</div><div class="cname">${u.n}</div>
-    <div class="tag" style="margin-top:6px"><span class="dot" style="background:${c}"></span>${THI[u.th].name} · ${fmtCap(u.cap)} · <span class="est ${u.res?'r':''}">${u.res?'researched':'screen-only'}</span></div></div>
+    <div class="tag" style="margin-top:6px"><span class="dot" style="background:${c}"></span>${THI[u.th].name} · ${fmtCap(u.cap)} · <span class="est ${u.ref||u.res?'r':''}">${u.ref?'refreshed':u.res?'researched':'screen-only'}</span></div></div>
   <div class="dsec"><h4>Background</h4><p>${BG[u.t]}</p></div>
   <div class="dsec"><h4>Key risk</h4><p>${TRISK[u.th]}</p></div>
-  <div class="dsec"><h4>Snapshot (approximate)</h4><div class="stats">
+  <div class="dsec"><h4>${u.ref?'Snapshot (refreshed, data as of '+u.ref+')':'Snapshot (approximate, early Oct 2026 estimate)'}</h4><div class="stats">
     <div class="stat"><div class="v">${fmtCap(u.cap)}</div><div class="k">Market cap</div></div>
     <div class="stat"><div class="v">${fmtPE(u.pe)}</div><div class="k">Forward P/E</div></div>
     <div class="stat"><div class="v">${u.g}%</div><div class="k">Revenue growth</div></div>
